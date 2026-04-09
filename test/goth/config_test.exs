@@ -150,6 +150,33 @@ defmodule Goth.ConfigTest do
     Application.start(:goth)
   end
 
+  test "get_configuration_data returns nil for empty config file" do
+    import ExUnit.CaptureLog
+
+    path = Path.expand("test/data/home/gcloud/configurations/config_empty")
+
+    log =
+      capture_log(fn ->
+        assert Config.get_configuration_data(path) == nil
+      end)
+
+    assert log =~ "missing required [core] section"
+    assert log =~ "Run 'gcloud init' or delete this file"
+  end
+
+  test "get_configuration_data returns nil for config file missing [core] section" do
+    import ExUnit.CaptureLog
+
+    path = Path.expand("test/data/home/gcloud/configurations/config_no_core")
+
+    log =
+      capture_log(fn ->
+        assert Config.get_configuration_data(path) == nil
+      end)
+
+    assert log =~ "missing required [core] section"
+  end
+
   test "GOOGLE_APPLICATION_CREDENTIALS is read" do
     # The test configuration sets an example JSON blob. We override it briefly
     # during this test.
